@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Docker Note-Slinger</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            max-width: 500px;
+            margin: 50px auto;
+            background: #f4f4f4;
+        }
+
+        form {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        input,
+        textarea {
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background: #24292e;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .note {
+            background: #fff;
+            padding: 10px;
+            margin-top: 10px;
+            border-left: 5px solid #007bff;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>📝 Add a New Note</h2>
+    <form id="noteForm">
+        <input type="text" id="title" placeholder="Note Title" required>
+        <textarea id="content" placeholder="Write your note here..." required></textarea>
+        <button type="submit">Save Note</button>
+    </form>
+
+    <div id="notesList"></div>
+
+    <script>
+        const form = document.getElementById('noteForm');
+        const notesList = document.getElementById('notesList');
+
+        // ... (inside the <script> tag of your HTML)
+
+        // 1. Correct GET endpoint
+        async function loadNotes() {
+            const res = await fetch('/api/notes/getnotes'); // Matches router.get('/getnotes')
+            const notes = await res.json();
+            notesList.innerHTML = notes.map(n => `
+        <div class="note">
+            <strong>${n.title}</strong><br>${n.content}
+        </div>
+    `).join('');
+        }
+
+        // 2. Correct POST endpoint
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const title = document.getElementById('title').value;
+            const content = document.getElementById('content').value;
+
+            // CHANGED: Added '/addnotes' to the URL to match your router
+            await fetch('/api/notes/addnotes', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title, content })
+            });
+
+            form.reset();
+            loadNotes();
+        });
+    </script>
+</body>
+
+</html>

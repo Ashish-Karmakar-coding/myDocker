@@ -1,0 +1,32 @@
+services:
+  # The MongoDB Service
+  database:
+    image: mongo:latest
+    container_name: mongodb_notes
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password
+    volumes:
+      - mongo_data:/data/db # Persistence bridge
+    networks:
+      - app-network
+
+  # Your Node.js API Service
+  api:
+    build: .
+    container_name: notes_api
+    ports:
+      - "3000:3000"
+    environment:
+      - MONGO_URI=mongodb://admin:password@database:27017/notesdb?authSource=admin
+    depends_on:
+      - database
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  mongo_data: # Declaring the named volume
